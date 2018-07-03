@@ -1,0 +1,30 @@
+{
+  "name": "blog_s",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iijx/blog_s.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iijx/blog_s/issues"
+  },
+  "homepage": "https://github.com/iijx/blog_s#readme",
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "highlight.js": "^9.12.0",
+    "koa": "^2.5.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "mongoose": "^5.1.5",
+    "prismjs": "^1.15.0",
+    "remarkable": "^1.7.1",
+    "showdown": "^1.8.6"
+  }
+}
