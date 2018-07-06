@@ -4,7 +4,8 @@ const util = require('util');
 const fs_readdir = util.promisify(fs.readdir);
 const fs_readFile = util.promisify(fs.readFile);
 const articleController = require('../controller/articleController');
-const unhandlerArticlesDir = 'src/articles';
+const { ArticleDir } = require('../config');
+
 const bodyDivideRegrep = /\n[-\s]*\n/;
 
 /**
@@ -19,7 +20,7 @@ const bodyDivideRegrep = /\n[-\s]*\n/;
  * } 
  */
 async function filehandle( file ) {
-    let filepath = path.resolve(unhandlerArticlesDir, file);
+    let filepath = path.resolve(ArticleDir.unhandled, file);
     let content = await fs_readFile(filepath, 'utf8');
     const title = content.match(/^.*\n/)[0].replace(/#/, '').trim();
     let divideIndex = content.search(bodyDivideRegrep);
@@ -38,12 +39,17 @@ async function filehandle( file ) {
         content,
     }
 
-    fs.unlinkSync(filepath);
+    // fs.unlinkSync(filepath);
+    fs.rename(filepath, path.resolve(ArticleDir.handled, file), function (err) {
+        if (err) throw err;
+        console.log('renamed complete');
+    });
     await articleController._create(obj);
     return Promise.resolve(obj);
 }
 async function handler( dir ) {
     const files = await fs_readdir( dir );
+    
     for( const item of files ) {
         let result = await filehandle(item);
         
@@ -52,7 +58,7 @@ async function handler( dir ) {
 
 
 module.exports = {
-    _handler: function() {
-        handler(unhandlerArticlesDir);
+    _handler: async function() {
+        await handler(ArticleDir.unhandled);
     }
 }

@@ -7,7 +7,6 @@ async function findAllTags () {
     return await TagModel.find();
 }
 module.exports = {
-    
     get: async (ctx, next) => {
         console.log('1');
 

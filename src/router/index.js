@@ -25,7 +25,7 @@ router.get(`${prefix}/tag`, tagController.get)
 
 router.get(`${prefix}/article`, articleController.get)
       .post(`${prefix}/article`, articleController.create)
-      .put(`${prefix}/article`, articleController.update)
+      .post(`${prefix}/article_update`, articleController.update)
       .delete(`${prefix}/article`, articleController.delete)
 
 module.exports = router;

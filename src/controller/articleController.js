@@ -2,6 +2,8 @@
 const mongoose = require('mongoose');
 const Remarkable = require('remarkable');
 const hljs = require('highlight.js');
+const { TagTypes } = require('../config');
+
 var md = new Remarkable({
     xhtmlOut: true,
     breaks: true,
@@ -21,17 +23,24 @@ var md = new Remarkable({
       }
 });
 
+var defaultTag = ''; // 用于创建文章时，未知tag, 则默认的tag（ 这里时tag为“其他”）
+
 const controller = {
     _create: async (blog) => {
         let { title, content, tag = '', subtags = [], createdTime, updatedTime, view = 0, html = '' } = blog;
         const ArticleModel = mongoose.model('Article');
-
+        
         if (html === '') {
-            // html = converter.makeHtml(blog.content);
             html = md.render(blog.content);
-            console.log('content', content)
-            console.log('html', html)
         }
+        if (tag === '') {
+            if (defaultTag === '' ) {
+                const TagModel = mongoose.model('Tag')
+                defaultTag = await TagModel.findOne({ type: TagTypes.REMAIN })
+            }
+            tag = defaultTag.id;
+        }
+        console.log('tag', tag)
         let curBlog = new ArticleModel({
             title,
             content,
@@ -47,12 +56,19 @@ const controller = {
     },
     _getArticleById: async(id) => {
         const ArticleModel = mongoose.model('Article');
-        let article = await ArticleModel.findById({ _id: id});
-        return article;
+        let article = await ArticleModel.findById(id);
+        return Promise.resolve(article);
     },
     _getArticleByTag: async(tag) => {
         const ArticleModel = mongoose.model('Article');
-        let articles = await ArticleModel.find({ tag });
+        const TagModel = mongoose.model('Tag');
+        let cur_tag = await TagModel.findById(tag);
+        let articles = [];
+        if (cur_tag.type === TagTypes.ALL) {
+            articles = await ArticleModel.find();
+        } else {
+            articles = await ArticleModel.find({ tag });
+        }
         return articles;
     },
     get: async (ctx, next) => {
@@ -65,9 +81,8 @@ const controller = {
                 success: true,
                 result: article
             }
-        } if (query.tagId) {
+        } else if (query.tagId) {
             let articles = await self._getArticleByTag(query.tagId);
-            console.log('query', query)
             ctx.body = {
                 success: true,
                 result: articles,
@@ -86,10 +101,19 @@ const controller = {
         
     },
     update: async(ctx, next) => {
-        const TagModel = mongoose.model('Tag');
-        let curTag = new TagModel({
-            tagName: ''
-        })
+        const ArticleModel = mongoose.model('Article');
+        let { id, tag, subtags } = ctx.request.body;
+        let update = {
+            tag: tag,
+            subtags: subtags
+        }
+        console.log(id, tag, subtags);
+        const result = await ArticleModel.findByIdAndUpdate(id, update, { new: true });
+        console.log('result', result);
+        ctx.body = {
+            success: true,
+            result: result,
+        }
     },
     delete: async(ctx, next) => {
         const ArticleModel = mongoose.model('Article');

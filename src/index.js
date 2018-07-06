@@ -7,13 +7,14 @@ const DB = require('./db');
 const Koa =  require('koa');
 const bodyParser = require('koa-bodyparser');
 const router = require('./router');
-const task_addArticle = require('./task.js/addArticle');
+const task_addArticle = require('./task/addArticle');
+const tags_Init = require('./task/tagsInit');
 
 ;(async () => {
     await DB.connect();
     await DB.initSchema();
-    task_addArticle._handler();
-    
+    await tags_Init();
+    await task_addArticle._handler();
 })()
 
 const App = new Koa();

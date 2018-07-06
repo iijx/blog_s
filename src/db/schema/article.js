@@ -27,10 +27,10 @@ const ArticleSchema = new Schema({
         default: new Date()
     },
     tag: {
-        type: String,
-        default: '',
+        type: Schema.Types.ObjectId,
+        required: true,
     },
-    subTag: {
+    subtags: {
         type: [String],
         default: [],
     },
@@ -40,7 +40,7 @@ const ArticleSchema = new Schema({
     },
     isShow: {
         type: Boolean,
-        default: false,
+        default: true,
     },
     meta: {
         created: {

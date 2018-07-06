@@ -4,6 +4,7 @@ let mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
+const { TagTypes } = require('../../config');
 
 const TagSchema = new Schema({
     tag: {
@@ -12,8 +13,13 @@ const TagSchema = new Schema({
         type: String,
     },
     subtags: {
-        type: [Schema.Types.String],
+        type: [String],
         default: []
+    },
+    type: {
+        type: String,
+        required: true,
+        default: TagTypes.NORMAL,
     },
     meta: {
         created: {
