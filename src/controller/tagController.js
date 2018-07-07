@@ -1,16 +1,22 @@
 
 const mongoose = require('mongoose');
 const ENV = process.env;
+const { TagTypes } = require('../config.js');
+
+let AllTags = undefined;
 
 async function findAllTags () {
     const TagModel = mongoose.model('Tag');
-    return await TagModel.find();
+    AllTags = await TagModel.find();
+    let all_index = AllTags.findIndex( item => item.type === TagTypes.ALL )
+    let remain_index = AllTags.findIndex( item => item.type === TagTypes.REMAIN );
+    
+    AllTags = [AllTags[all_index], ...(AllTags.filter( item => item.type !== TagTypes.ALL && item.type !== TagTypes.REMAIN)), AllTags[remain_index]];
+    return AllTags;
 }
 module.exports = {
     get: async (ctx, next) => {
-        console.log('1');
-
-        let tags = await findAllTags();
+        let tags = AllTags ? AllTags : await findAllTags();
 
         ctx.body = {
             success: true,
@@ -27,6 +33,7 @@ module.exports = {
         try {
             await curTag.save();
             let result = await findAllTags();
+            AllTags = result;
             ctx.body = {
                 success: true,
                 result: result,
